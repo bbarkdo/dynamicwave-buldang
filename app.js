@@ -56,7 +56,7 @@
   }).join('');
   var q = encodeURIComponent(info.address.split(',')[0]);
   $('mapFrame').src = 'https://maps.google.com/maps?q=' + q + '&hl=ko&z=17&output=embed';
-  $('mapGo').href = 'https://map.naver.com/p/search/' + q;
+  $('mapGo').href = info.naverPlace || 'https://map.naver.com/p/search/' + q;
   $('copyAddr').addEventListener('click', function () {
     var b = this;
     try { navigator.clipboard.writeText(info.address).then(function () { b.textContent = '복사됨'; }); } catch (e) { /* 복사 미지원 브라우저 */ }
