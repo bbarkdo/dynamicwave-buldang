@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bbarkdo.github.io/dynamicwave-buldang/sitemap.xml
