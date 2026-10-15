@@ -42,7 +42,7 @@
 - `preFiveMonths` (기본 3): 48개월이 되기 이 개월 수 안쪽이면 배너에 '수영장으로 바로 문의' 문구 추가
 
 ## 공개 주소 · 배포
-- 공개 주소(예정): https://bbarkdo.github.io/dynamicwave-buldang/ — GitHub 저장소 `dynamicwave-buldang`의 GitHub Pages
+- 공개 주소: https://www.dwave-buldang.kr/ (가비아 도메인 → GitHub Pages, 저장소 `dynamicwave-buldang`)
 - 이 폴더(`dynamicwave/`)의 내용이 그 저장소의 맨 위(루트)에 그대로 들어갑니다.
 - 도메인을 따로 구입하면 `index.html`의 canonical · og 주소, `robots.txt`, `sitemap.xml`의 주소를 새 도메인으로 바꾸고 저장소에 `CNAME` 파일을 추가합니다.
 - 공유 미리보기 이미지: `assets/og-image.jpg` · 개인정보처리방침: `privacy.html`
