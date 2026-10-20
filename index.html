@@ -520,6 +520,10 @@
             <div class="field"><label for="k-name"><b>1</b>아동 이름</label><input id="k-name" autocomplete="off" placeholder="홍길동"></div>
             <div class="field"><label for="k-birth">생년월일</label><input id="k-birth" type="date" min="2008-01-01"><span class="age-out" id="kAgeOut">입력하면 유아 · 초등을 자동으로 구분해 맞는 반만 보여드려요</span></div>
           </div>
+          <div class="field only-kids">
+            <span class="lbl">아이 성별 <small>(같은 성별 케어 선생님 배정에 필요해요)</small></span>
+            <div class="radio-row"><label><input type="radio" name="k-gender" value="남아"><span>👦 남아</span></label><label><input type="radio" name="k-gender" value="여아"><span>👧 여아</span></label></div>
+          </div>
           <div class="row3 only-adult" hidden>
             <div class="field"><label for="a-name"><b>1</b>성함</label><input id="a-name" autocomplete="name" placeholder="홍길동"></div>
             <div class="field"><label for="a-birth">생년월일</label><input id="a-birth" inputmode="numeric" placeholder="예: 1990.05.12"></div>

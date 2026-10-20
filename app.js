@@ -613,7 +613,7 @@
     if (who === 'kids') {
       var shuttle = radio('shuttle') === '이용' ? '이용 (픽업 장소: ' + (val('k-pickup') || '상담 시 안내') + ')' : '미이용';
       var b = '[다이나믹웨이브 불당점 대기접수 · 유아/어린이]\n' +
-        '1. 아동명 / 생년월일 : ' + val('k-name') + ' / ' + (val('k-birth') ? val('k-birth').replace(/-/g, '.') + ' (' + ageText(childAge()) + ')' : '-') + '\n' +
+        '1. 아동명 / 생년월일 / 성별 : ' + val('k-name') + ' / ' + (val('k-birth') ? val('k-birth').replace(/-/g, '.') + ' (' + ageText(childAge()) + ')' : '-') + ' / ' + (radio('k-gender') || '-') + '\n' +
         '2. 보호자 연락처 : ' + val('f-phone') + '\n' +
         '3. 희망 프로그램 : ' + p + '\n' +
         '4. 희망 요일·시간·주 횟수 :' + w + '\n' +
@@ -644,6 +644,7 @@
     var name = rent ? val('r-name') : who === 'kids' ? val('k-name') : val('a-name'), phone = rent ? val('r-phone') : val('f-phone');
     if (rent && !name) return showErr('신청자 성함을 입력해 주세요.');
     if (!name) return showErr(who === 'kids' ? '아동 이름을 입력해 주세요.' : '성함을 입력해 주세요.');
+    if (who === 'kids' && !radio('k-gender')) return showErr('아이 성별을 선택해 주세요.');
     if (!/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(phone)) return showErr('연락처를 확인해 주세요. 예: 010-1234-5678');
     if (!$('f-agree').checked) return showErr('개인정보 수집 · 이용에 동의해 주세요.');
     if (rent && !val('r-date')) return showErr('희망 날짜를 골라주세요.');
