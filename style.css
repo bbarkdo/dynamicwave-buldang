@@ -655,3 +655,15 @@ a.extra:hover { transform: translateY(-2px); }
 .sp-soon { margin-top: 18px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
 .sp-soon-badge { margin: 0; background: #fff; border: 2px dashed var(--coral); color: var(--coral); border-radius: 999px; padding: 10px 22px; font-size: 18px; }
 .copy a { color: inherit; }
+
+/* 가격: 1회 요금(체험 · 대관) 별도 카드 */
+.price-extra { max-width: 820px; margin: 16px auto 0; background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px 26px; }
+.price-extra h3 { font-size: 19px; color: var(--sky-d); margin: 0 0 8px; }
+.px-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.px-ico { font-size: 26px; }
+.px-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.px-txt b { font-size: 16px; }
+.px-txt small { font-weight: 400; color: var(--muted); }
+.px-txt span { font-size: 13px; color: var(--muted); }
+.px-item strong { font-size: 18px; color: var(--coral); white-space: nowrap; font-variant-numeric: tabular-nums; }
+@media (max-width: 560px) { .price-extra { padding: 14px 14px; } .px-item strong { font-size: 16px; } }

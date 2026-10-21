@@ -290,7 +290,7 @@
       });
       h += '</tbody>';
     });
-    $('pBody').innerHTML = h + '</table>' + '<p class="pt-tip">' + (term === 3 ? '3개월권 = 1개월 금액 × 3 × 0.9 (10% 할인) · 셔틀 · 자유수영 · 대관 · 체험은 기간과 관계없이 같은 금액이에요.' : '3개월권으로 등록하면 10% 추가 할인돼요.') + '</p>';
+    $('pBody').innerHTML = h + '</table>' + '<p class="pt-tip">' + (term === 3 ? '3개월권 = 1개월 금액 × 3 × 0.9 (10% 할인) · 셔틀 · 자유수영은 기간과 관계없이 같은 금액이에요.' : '3개월권으로 등록하면 10% 추가 할인돼요.') + '</p>';
   }
   $('pTerm').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
@@ -298,6 +298,9 @@
     [].forEach.call(this.children, function (x) { x.setAttribute('aria-selected', x === b); });
     renderPrice();
   });
+  $('pExtra').innerHTML = '<h3>기간과 상관없는 1회 요금</h3>' + D.extraPrices.map(function (x) {
+    return '<div class="px-item"><span class="px-ico" aria-hidden="true">' + x.icon + '</span><div class="px-txt"><b>' + esc(x.name) + ' <small>(' + esc(x.unit) + ')</small></b><span>' + esc(x.desc) + '</span></div><strong>' + won(x.price) + '원</strong></div>';
+  }).join('');
   $('pNotes').innerHTML = D.priceNotes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
   renderPrice();
 
