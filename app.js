@@ -23,9 +23,10 @@
 
   // 남은 자리 → 상태
   // wait: 대기 인원 — 대기자가 남은 자리를 먼저 채운다고 보고 계산
+  // 남은 자리 = 정원 − 등록 인원 (대기 인원은 마감된 반에 따로 표시)
   function seat(cap, cur, wait) {
     wait = wait || 0;
-    var left = cap - cur - wait;
+    var left = cap - cur;
     if (left <= 0) return { k: 'full', left: 0, wait: wait, txt: '마감 · 대기 접수' };
     if (left === 1) return { k: 'few', left: 1, txt: '1자리 남음' };
     return { k: 'open', left: left, txt: left + '자리 남음' };
