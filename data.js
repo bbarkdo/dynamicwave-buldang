@@ -13,7 +13,7 @@ window.DW = {
      clarity : Microsoft Clarity 프로젝트 ID (예: 'abcd1234ef')
      naverWa : 네이버 애널리틱스 사이트 ID (예: '1a2b3c4d5e6f7g')
   */
-  analytics: { ga4: '', clarity: '', naverWa: '' },
+  analytics: { ga4: 'G-4K98CC1P0P', clarity: '', naverWa: '' },
 
   info: {
     name: '다이나믹웨이브 불당점',
