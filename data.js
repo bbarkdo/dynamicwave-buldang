@@ -8,6 +8,13 @@
 window.DW = {
 
   /* ---------- 기본 정보 ---------- */
+  /* ---------- 방문 통계 (ID를 넣으면 자동으로 켜져요, 비우면 꺼져요) ----------
+     ga4     : Google Analytics 4 측정 ID (예: 'G-XXXXXXXXXX')
+     clarity : Microsoft Clarity 프로젝트 ID (예: 'abcd1234ef')
+     naverWa : 네이버 애널리틱스 사이트 ID (예: '1a2b3c4d5e6f7g')
+  */
+  analytics: { ga4: '', clarity: '', naverWa: '' },
+
   info: {
     name: '다이나믹웨이브 불당점',
     tel: '010-2752-6218',

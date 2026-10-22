@@ -32,6 +32,40 @@
   }
   var form = $('consultForm'), msg = $('formMsg'), who = 'kids', wishes = [];
 
+  /* ---------- 방문 통계: GA4 · Clarity · 네이버 애널리틱스 (data.js의 analytics에 ID가 있을 때만) ---------- */
+  var AN = D.analytics || {};
+  function loadScript(src, onload) { var s = document.createElement('script'); s.async = true; s.src = src; if (onload) s.onload = onload; document.head.appendChild(s); }
+  if (AN.ga4) {
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function () { dataLayer.push(arguments); };
+    gtag('js', new Date()); gtag('config', AN.ga4);
+    loadScript('https://www.googletagmanager.com/gtag/js?id=' + AN.ga4);
+  }
+  if (AN.clarity) {
+    (function (c, l, a, r, i) { c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments); }; loadScript('https://www.clarity.ms/tag/' + i); })(window, document, 'clarity', 'script', AN.clarity);
+  }
+  if (AN.naverWa) {
+    loadScript('https://wcs.pstatic.net/wcslog.js', function () { window.wcs_add = window.wcs_add || {}; wcs_add.wa = AN.naverWa; if (window.wcs) wcs_do(); });
+  }
+  // 주요 행동 기록 (GA4 이벤트 이름)
+  function track(name, params) { try { if (window.gtag && AN.ga4) gtag('event', name, params || {}); } catch (e) { /* 통계 실패는 무시 */ } }
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a, button'); if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('tel:') === 0) track('call_click', { place: a.id || a.className });
+    else if (href.indexOf('sms:') === 0) track('sms_click');
+    else if (/pf\.kakao/.test(href)) track('kakao_click', { place: a.id || a.className });
+    else if (/instagram/.test(href)) track('instagram_click');
+    else if (/blog\.naver/.test(href)) track('blog_click');
+    else if (a.id === 'naverBtn') track('naver_booking_click');
+    else if (a.id === 'mapGo') track('map_click');
+    else if (a.hasAttribute('data-see')) track('see_timetable_click');
+    else if (a.closest('.form-tabs')) track('consult_tab', { tab: a.dataset.who });
+    else if (a.closest('#ttMode')) track('timetable_tab', { tab: a.dataset.mode });
+    else if (a.classList.contains('cls')) track('timetable_class_click');
+    else if (a.closest('#pTerm')) track('price_term', { term: a.dataset.m });
+  });
+
   function badge(s) { return '<span class="badge ' + s.k + '"><i class="seat ' + s.k + '"></i>' + s.txt + '</span>'; }
 
   /* ---------- 기본 정보 채우기 ---------- */
@@ -653,6 +687,7 @@
     if (rent && !val('r-date')) return showErr('희망 날짜를 골라주세요.');
     var body = rent ? rentBody() : buildBody(), href = 'sms:' + info.sms + '?&body=' + encodeURIComponent(body);
     msg.hidden = false; msg.className = 'form-msg';
+    track(rent ? 'rental_submit' : 'consult_submit', { who: who, program: rent ? '대관' : (progs().join(',') || '미선택'), method: IS_MOBILE ? 'sms' : 'qr' });
     if (IS_MOBILE) {
       msg.innerHTML = '<b>문자 앱이 열리지 않으면 아래 내용을 ' + esc(info.tel) + '로 보내주세요.</b><pre id="smsText">' + esc(body) + '</pre>' +
         '<div class="sms-actions"><a class="btn btn-main" href="' + href + '">문자 앱 열기</a><button class="mini" type="button" id="smsCopy">내용 복사</button></div>';
