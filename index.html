@@ -143,11 +143,8 @@
             <p class="sp-desc" id="spDesc"></p>
             <div class="sp-rounds" id="spRounds"></div>
           </div>
-          <a class="sp-flyer" id="spFlyer" href="#" target="_blank" rel="noopener" hidden>
-            <img id="spFlyerImg" src="" alt="겨울방학 수영특강 안내 전단지" loading="lazy">
-            <span>🔍 전단지 크게 보기</span>
-          </a>
         </div>
+        <div class="sp-flyers" id="spFlyers" hidden></div>
         <div class="sp-soon" id="spSoon" hidden>
           <p class="sp-soon-badge">📢 <b id="spSoonText"></b></p>
           <a class="btn kn-kakao" data-kakao href="#" target="_blank" rel="noopener">💬 카카오톡 채널 추가하고 소식 받기</a>
@@ -160,13 +157,14 @@
         </div>
 
         <div class="sp-apply" id="spApply">
-          <h3>🗓️ 시간 · 수조 선택하고 신청하기</h3>
+          <h3>🗓️ 차수 · 시간 · 수조 선택하고 신청하기</h3>
           <div class="sp-round-pick" role="radiogroup" aria-label="신청 차수">
             <span>신청 차수</span>
             <label><input type="radio" name="spRound" value="1차" checked><span>1차</span></label>
             <label><input type="radio" name="spRound" value="2차"><span>2차</span></label>
             <label><input type="radio" name="spRound" value="1·2차 동시"><span>1·2차 동시 <em>2차 10%↓</em></span></label>
           </div>
+          <p class="sp-sum" id="spSum"></p>
           <div class="sp-list" id="spList"></div>
         </div>
         <div class="sp-note" id="spNoteBox">

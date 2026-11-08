@@ -735,3 +735,20 @@ a.extra:hover { transform: translateY(-2px); }
 @media (min-width: 1000px) { .sp-feats { grid-template-columns: repeat(7, 1fr); gap: 8px; } .sp-feats li { padding: 12px 6px; } }
 @media (max-width: 999px) and (min-width: 521px) { .sp-feats { grid-template-columns: repeat(4, 1fr); } .sp-feats li:last-child { grid-column: span 1; } }
 @media (max-width: 520px) { .sp-feats li:last-child { grid-column: 1 / -1; } }
+/* 겨울특강: 안내 이미지 2장 · 차수별 여석 */
+.sp-flyers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+.sp-flyers .sp-flyer { padding: 6px; }
+.sp-sum { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 4px; font-weight: 700; font-size: 15px; }
+.sp-sum b { color: #fff; border-radius: 999px; padding: 3px 11px; font-size: 14px; }
+.sp-sum b.r1 { background: #3BB8F0; } .sp-sum b.r2 { background: #FF7A85; }
+.sp-sum small { font-weight: 400; color: var(--muted); font-size: 13px; }
+.rs-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.rs { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; padding: 4px 10px 4px 4px; border-radius: 999px; border: 2px solid transparent; opacity: .45; }
+.rs em { font-style: normal; font-size: 11.5px; color: #fff; background: #1D3557; border-radius: 999px; padding: 1px 7px; }
+.rs.on { opacity: 1; }
+.rs-open { background: #E3F7EC; color: #178A52; } .rs-open.on { border-color: #7FD3A6; }
+.rs-few { background: #FFF0DB; color: #C46A00; } .rs-few.on { border-color: #F5B867; }
+.rs-full { background: #EEF1F5; color: #6B7A8C; } .rs-full.on { border-color: #C3CCD6; }
+.sp-item.is-none { background: rgba(255,255,255,.55); box-shadow: none; border-top-style: dashed; justify-content: center; }
+.sp-item.is-none .sp-pool { opacity: .5; }
+@media (max-width: 640px) { .sp-flyers { grid-template-columns: 1fr; gap: 12px; } .rs { font-size: 12.5px; } }

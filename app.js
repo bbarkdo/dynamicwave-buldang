@@ -282,7 +282,10 @@
     $('spBadge').textContent = $('spmBadge').textContent = '❄️ ' + sp.badge;
     $('spTitle').textContent = $('spmTitle').textContent = sp.title;
     $('spDesc').textContent = sp.desc;
-    if (sp.flyer) { $('spFlyer').hidden = false; $('spFlyer').href = sp.flyer; $('spFlyerImg').src = sp.flyer; }
+    if (sp.flyers && sp.flyers.length) {
+      $('spFlyers').hidden = false;
+      $('spFlyers').innerHTML = sp.flyers.map(function (f) { return '<a class="sp-flyer" href="' + esc(f.src) + '" target="_blank" rel="noopener"><img src="' + esc(f.src) + '" alt="' + esc(f.alt) + '" loading="lazy" width="1080" height="1080"><span>🔍 크게 보기</span></a>'; }).join('');
+    }
     var roundsHtml = sp.rounds.map(function (r, i) {
       return '<div class="sp-round r' + (i + 1) + '"><b>' + esc(r.name) + '</b><span class="rd">' + esc(r.dates) + '</span><span class="rc">총 ' + r.count + '회 · ' + esc(r.days) + '</span>' + (r.note ? '<small>※ ' + esc(r.note) + '</small>' : '') + '</div>';
     }).join('');
@@ -303,24 +306,46 @@
     $('spUpdated').textContent = '(' + fmtDate(sp.updated) + ' 기준 여석)';
     $('spNote').innerHTML = [].concat(sp.note).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
 
+    // 차수별 여석: r1 = 1차 신청, r2 = 2차 신청 (1·2차 모두 신청한 아이는 둘 다에 포함)
     var spSlots = [];   // 버튼 번호 → { part, pool }
-    sp.parts.forEach(function (pt) { pt.pools.forEach(function (pl) { pl.s = seat(pl.cap, pl.cur); spSlots.push({ part: pt, pool: pl }); }); });
-    var n = 0;
-    $('spList').innerHTML = sp.parts.map(function (pt) {
-      return '<div class="sp-part"><div class="sp-when"><b>' + esc(pt.name) + '</b><span>' + esc(pt.time) + '</span></div>' +
-        pt.pools.map(function (pl) {
-          var r = D.rooms[pl.room];
-          return '<div class="sp-item pool-' + pl.room + (pl.s.k === 'full' ? ' is-full' : '') + '"><span class="sp-pool">' + r.icon + ' ' + esc(r.name) + '</span>' +
-            '<span class="tg">' + esc(pl.target) + '</span>' + badge(pl.s) +
-            '<button type="button" class="mini" data-sp="' + (n++) + '">' + (pl.s.k === 'full' ? '대기 접수하기' : '이 시간 신청하기') + '</button></div>';
-        }).join('') + '</div>';
-    }).join('');
+    sp.parts.forEach(function (pt) { pt.pools.forEach(function (pl) { spSlots.push({ part: pt, pool: pl }); }); });
+    function spRound() { return (document.querySelector('input[name="spRound"]:checked') || {}).value || '1차'; }
+    function poolSeat(pl, round) {
+      var r1 = pl.r1 || 0, r2 = pl.r2 || 0;
+      return seat(pl.cap, round === '1차' ? r1 : round === '2차' ? r2 : Math.max(r1, r2));
+    }
+    function chip(label, left, on) {
+      var k = left <= 0 ? 'full' : left === 1 ? 'few' : 'open';
+      return '<span class="rs rs-' + k + (on ? ' on' : '') + '"><em>' + label + '</em>' + (left <= 0 ? '마감' : left + '자리') + '</span>';
+    }
+    function renderSp() {
+      var round = spRound(), n = 0, tot = { r1: 0, r2: 0 };
+      var rooms = [1, 2];
+      $('spList').innerHTML = sp.parts.map(function (pt) {
+        return '<div class="sp-part"><div class="sp-when"><b>' + esc(pt.name) + '</b><span>' + esc(pt.time) + '</span></div>' +
+          rooms.map(function (room) {
+            var r = D.rooms[room], pl = pt.pools.filter(function (x) { return x.room === room; })[0];
+            if (!pl) return '<div class="sp-item pool-' + room + ' is-none"><span class="sp-pool">' + r.icon + ' ' + esc(r.name) + '</span><span class="tg">이 시간에는 수업이 없어요</span></div>';
+            var idx = spSlots.findIndex(function (x) { return x.pool === pl; });
+            var l1 = pl.cap - (pl.r1 || 0), l2 = pl.cap - (pl.r2 || 0), s = poolSeat(pl, round);
+            tot.r1 += Math.max(l1, 0); tot.r2 += Math.max(l2, 0);
+            return '<div class="sp-item pool-' + room + (s.k === 'full' ? ' is-full' : '') + '"><span class="sp-pool">' + r.icon + ' ' + esc(r.name) + '</span>' +
+              '<span class="tg">' + esc(pl.target || sp.target) + ' · 최대 ' + pl.cap + '명' + (pl.note ? ' · ' + esc(pl.note) : '') + '</span>' +
+              '<span class="rs-row">' + chip('1차', l1, round !== '2차') + chip('2차', l2, round !== '1차') + '</span>' +
+              '<button type="button" class="mini" data-sp="' + idx + '">' + (s.k === 'full' ? round + ' 대기 접수' : round + ' 신청하기') + '</button></div>';
+          }).join('') + '</div>';
+      }).join('');
+      $('spSum').innerHTML = '지금 남은 자리 <b class="r1">1차 ' + tot.r1 + '자리</b> <b class="r2">2차 ' + tot.r2 + '자리</b> <small>' + (round === '1·2차 동시' ? '1·2차 동시는 두 차수 모두 자리가 있어야 해요' : '선택한 차수 기준으로 신청 버튼이 바뀌어요') + '</small>';
+    }
+    renderSp();
+    [].forEach.call(document.querySelectorAll('input[name="spRound"]'), function (r) { r.addEventListener('change', renderSp); });
     $('spList').addEventListener('click', function (e) {
       var b = e.target.closest('[data-sp]'); if (!b) return;
-      var x = spSlots[+b.dataset.sp];
-      var round = (document.querySelector('input[name="spRound"]:checked') || {}).value || '1차';
+      var x = spSlots[+b.dataset.sp], round = spRound(), full = poolSeat(x.pool, round).k === 'full';
       setWho('kids');
-      addWish({ special: true, text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') + (x.pool.s.k === 'full' ? ' (대기)' : '') });
+      var a = childAge();
+      if (a && !spFits(a)) { $('wHint').textContent = '겨울방학 특강은 초등학생 전용이에요. (7세는 신청 가능)'; $('consult').scrollIntoView({ behavior: 'smooth' }); return; }
+      addWish({ special: true, text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') + (full ? ' (대기)' : '') });
       track('special_apply_click', { round: round, time: x.part.name, pool: x.pool.room });
       $('consult').scrollIntoView({ behavior: 'smooth' });
     });
@@ -455,6 +480,8 @@
     var from = new Date(by, bm - 1 + 48, bd);
     return { g: g, age: age, grade: grade, months: months, near: g === 'young' && months >= 48 - D.preFiveMonths, from: from.getFullYear() + '년 ' + (from.getMonth() + 1) + '월 ' + from.getDate() + '일' };
   }
+  // 겨울특강: 초등학생 전용, 단 7세(내년 초등 입학)는 신청 가능
+  function spFits(a) { return a.g === 'elem' || (a.g === 'baby' && a.age >= 7); }
   function childGroup() { var a = who === 'kids' && childAge(); return a ? a.g : null; }
   function classFits(kind, g) { return GROUP[g].kinds.indexOf(kind) >= 0; }
   function ageText(a) {
@@ -487,7 +514,7 @@
     // 맞지 않는 희망 시간(다른 연령 반, 초등 전용 특강)은 정리
     var before = wishes.length;
     if (a) wishes = wishes.filter(function (w) {
-      if (w.special) return a.g !== 'young';
+      if (w.special) return spFits(a);
       if (w.cid != null) { var c = CL[w.cid]; return GROUP[a.g].kinds.length && (c.kind === '신규' || classFits(c.kind, a.g)); }
       return true;
     });
