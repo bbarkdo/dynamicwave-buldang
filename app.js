@@ -244,36 +244,67 @@
     if (m === 'adult') setWho('adult');
   });
 
-  /* ---------- 방학특강 ---------- */
+  /* ---------- 방학특강 (이벤트) ---------- */
   var sp = D.special, td = today();
   var spOn = sp && sp.show && td >= sp.from && td <= sp.to;
-  // 공개 예정: 일정 · 여석 · 신청은 숨기고 '11월 초 공개 예정'만 안내 (팝업 없음)
+  // 공개 예정: 일정 · 여석 · 신청은 숨기고 안내만 (팝업 없음)
   if (spOn && sp.mode === 'soon') {
     $('special').hidden = false; $('navSp').hidden = false; $('spRibbon').hidden = false;
     $('spRibbonTag').textContent = sp.badge;
-    $('spRibbonTxt').textContent = '초등 겨울방학 특강 · ' + sp.soonText;
+    $('spRibbonTxt').textContent = sp.badge + ' · ' + sp.soonText;
     $('spBadge').textContent = sp.badge;
-    $('spTitle').textContent = '초등 겨울방학 특강, ' + sp.soonText;
-    $('spPeriod').hidden = true;
+    $('spTitle').textContent = sp.badge + ', ' + sp.soonText;
     $('spDesc').textContent = sp.soonDesc;
     $('spSoonText').textContent = sp.soonText;
-    $('spSoon').hidden = false; $('spList').hidden = true; $('spNoteBox').hidden = true;
+    $('spSoon').hidden = false;
+    ['spPrice', 'spApply', 'spNoteBox', 'spFeats'].forEach(function (id) { $(id).hidden = true; });
     spOn = false;
   }
   if (spOn) {
-    var spSlots = [];   // 버튼 번호 → { part, pool }
-    sp.parts.forEach(function (pt) { pt.pools.forEach(function (pl) { pl.s = seat(pl.cap, pl.cur); spSlots.push({ part: pt, pool: pl }); }); });
-    var openCnt = spSlots.reduce(function (a, x) { return a + x.pool.s.left; }, 0);
+    function md(d) { var p = d.split('-'); return +p[1] + '/' + +p[2]; }
+    function daysTo(d) { return Math.round((new Date(d + 'T00:00:00') - new Date(td + 'T00:00:00')) / 864e5); }
+    // 등록 시기별 가격: 지난 것 · 지금 적용 중 · 예정
+    var tiers = sp.tiers.map(function (t) {
+      var st = td < t.from ? 'soon' : (t.to && td > t.to) ? 'past' : 'now';
+      return Object.assign({ st: st }, t);
+    });
+    var cur = tiers.filter(function (t) { return t.st === 'now'; })[0], next = tiers.filter(function (t) { return t.st === 'soon'; })[0];
+    var deal = cur || next;
+    function dealLine(t) {
+      if (!t) return '';
+      if (t.st === 'now') return t.name + ' 회당 ' + won(t.per) + '원' + (t.to ? ' · ' + md(t.to) + '까지' + (daysTo(t.to) <= 3 ? ' (D-' + daysTo(t.to) + ')' : '') : '');
+      return t.name + ' 회당 ' + won(t.per) + '원 · ' + (daysTo(t.from) === 1 ? '내일' : md(t.from)) + '부터';
+    }
+
     $('special').hidden = false; $('navSp').hidden = false; $('spRibbon').hidden = false;
-    $('spRibbonTag').textContent = sp.badge;
-    $('spRibbonTxt').textContent = sp.title + (openCnt ? ' · 남은 자리 ' + openCnt + '석' : ' · 대기 접수 중');
-    $('spBadge').textContent = $('spmBadge').textContent = sp.badge;
+    $('spRibbonTag').textContent = '❄️ ' + sp.badge;
+    $('spRibbonTxt').textContent = dealLine(deal);
+    $('spBadge').textContent = $('spmBadge').textContent = '❄️ ' + sp.badge;
     $('spTitle').textContent = $('spmTitle').textContent = sp.title;
-    $('spPeriod').textContent = $('spmPeriod').textContent = sp.period;
     $('spDesc').textContent = sp.desc;
+    if (sp.flyer) { $('spFlyer').hidden = false; $('spFlyer').href = sp.flyer; $('spFlyerImg').src = sp.flyer; }
+    var roundsHtml = sp.rounds.map(function (r, i) {
+      return '<div class="sp-round r' + (i + 1) + '"><b>' + esc(r.name) + '</b><span class="rd">' + esc(r.dates) + '</span><span class="rc">총 ' + r.count + '회 · ' + esc(r.days) + '</span>' + (r.note ? '<small>※ ' + esc(r.note) + '</small>' : '') + '</div>';
+    }).join('');
+    $('spRounds').innerHTML = roundsHtml;
+    $('spmRounds').innerHTML = sp.rounds.map(function (r) { return '<li><b>' + esc(r.name) + '</b> ' + esc(r.dates) + ' · ' + r.count + '회</li>'; }).join('');
+    $('spFeats').innerHTML = sp.features.map(function (f) { return '<li><span class="fi" aria-hidden="true">' + f[0] + '</span><b>' + esc(f[1]) + '</b><small>' + esc(f[2]) + '</small></li>'; }).join('');
+    $('spBothNote').textContent = '📢 ' + sp.bothNote;
+    $('spTiers').innerHTML = tiers.map(function (t, i) {
+      var stTxt = t.st === 'now' ? '✅ 지금 적용 중' + (t.to ? ' · ' + md(t.to) + '까지' : '') : t.st === 'past' ? '마감' : (daysTo(t.from) === 1 ? '내일부터' : md(t.from) + '부터');
+      return '<div class="tier t' + (i + 1) + ' st-' + t.st + '">' + (t.tag ? '<span class="tier-tag">' + esc(t.tag) + '</span>' : '') +
+        '<h4>' + esc(t.name) + '</h4><p class="tier-when">' + md(t.from) + (t.to ? ' ~ ' + md(t.to) : '부터 ' + esc(t.sub || '')) + '</p>' +
+        '<p class="tier-st">' + stTxt + '</p>' +
+        '<p class="tier-per">회당 <b>' + won(t.per) + '</b>원</p>' +
+        '<dl><dt>1차 (17회)</dt><dd>' + won(t.r1) + '원</dd><dt>2차 (18회)</dt><dd>' + won(t.r2) + '원</dd></dl>' +
+        '<div class="tier-both">1 · 2차 동시 등록<b>' + won(t.both) + '원</b><small>2차 수강료 10% 할인 적용</small></div></div>';
+    }).join('');
+    $('spmDeal').innerHTML = deal ? '<p>' + (deal.st === 'now' ? '지금 등록하면' : (daysTo(deal.from) === 1 ? '내일부터' : md(deal.from) + '부터')) + ' <b>' + esc(deal.name) + '</b></p><strong>회당 ' + won(deal.per) + '원</strong><small>' + esc(sp.bothNote) + '</small>' : '';
     $('spUpdated').textContent = '(' + fmtDate(sp.updated) + ' 기준 여석)';
     $('spNote').innerHTML = [].concat(sp.note).map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('');
-    // 부별로 한 줄: [1부 · 시간] [퐁당풀 카드] [첨벙풀 카드]
+
+    var spSlots = [];   // 버튼 번호 → { part, pool }
+    sp.parts.forEach(function (pt) { pt.pools.forEach(function (pl) { pl.s = seat(pl.cap, pl.cur); spSlots.push({ part: pt, pool: pl }); }); });
     var n = 0;
     $('spList').innerHTML = sp.parts.map(function (pt) {
       return '<div class="sp-part"><div class="sp-when"><b>' + esc(pt.name) + '</b><span>' + esc(pt.time) + '</span></div>' +
@@ -284,23 +315,19 @@
             '<button type="button" class="mini" data-sp="' + (n++) + '">' + (pl.s.k === 'full' ? '대기 접수하기' : '이 시간 신청하기') + '</button></div>';
         }).join('') + '</div>';
     }).join('');
-    $('spmList').innerHTML = sp.parts.map(function (pt) {
-      return '<li><span class="spm-when"><b>' + esc(pt.name) + '</b> ' + esc(pt.time.split(' ')[0]) + '</span><span class="spm-pools">' +
-        pt.pools.map(function (pl) { return '<span class="spm-pool">' + esc(D.rooms[pl.room].name) + ' ' + badge(pl.s) + '</span>'; }).join('') + '</span></li>';
-    }).join('');
     $('spList').addEventListener('click', function (e) {
       var b = e.target.closest('[data-sp]'); if (!b) return;
       var x = spSlots[+b.dataset.sp];
+      var round = (document.querySelector('input[name="spRound"]:checked') || {}).value || '1차';
       setWho('kids');
-      var g = childGroup();
-      if (g && g !== 'elem') { $('consult').scrollIntoView({ behavior: 'smooth' }); return showErr('겨울방학 특강은 초등학생 전용이에요. 입력한 생년월일 기준으로는 신청할 수 없어요.'); }
-      addWish({ special: true, text: sp.badge + ' ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (x.pool.s.k === 'full' ? ' (대기)' : '') });
+      addWish({ special: true, text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') + (x.pool.s.k === 'full' ? ' (대기)' : '') });
+      track('special_apply_click', { round: round, time: x.part.name, pool: x.pool.room });
       $('consult').scrollIntoView({ behavior: 'smooth' });
     });
     // 팝업 (하루 1회)
     var modal = $('spModal');
     function closeModal() { modal.hidden = true; }
-    if (sp.popup && store('dw_sp_hide') !== td) setTimeout(function () { modal.hidden = false; }, 700);
+    if (sp.popup && store('dw_sp_hide') !== td) setTimeout(function () { modal.hidden = false; track('special_popup_view'); }, 700);
     modal.addEventListener('click', function (e) { if (e.target === modal || e.target.closest('[data-close]')) closeModal(); });
     $('spmToday').addEventListener('click', function () { store('dw_sp_hide', td); closeModal(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
@@ -460,7 +487,7 @@
     // 맞지 않는 희망 시간(다른 연령 반, 초등 전용 특강)은 정리
     var before = wishes.length;
     if (a) wishes = wishes.filter(function (w) {
-      if (w.special) return a.g === 'elem';
+      if (w.special) return a.g !== 'young';
       if (w.cid != null) { var c = CL[w.cid]; return GROUP[a.g].kinds.length && (c.kind === '신규' || classFits(c.kind, a.g)); }
       return true;
     });

@@ -87,7 +87,7 @@
       <a href="#allcare">올케어</a>
       <a href="#program">프로그램</a>
       <a href="#timetable">시간표</a>
-      <a href="#special" id="navSp" hidden>방학특강</a>
+      <a href="#special" id="navSp" hidden class="nav-ev">❄️ 겨울특강</a>
       <a href="#price">가격</a>
       <a href="#rules">이용 규정</a>
       <a href="#visit">오시는 길</a>
@@ -136,19 +136,41 @@
   <section class="sec special" id="special" hidden>
     <div class="wrap">
       <div class="sp-card">
-        <div class="sp-head">
-          <span class="sp-badge" id="spBadge"></span>
-          <h2 id="spTitle"></h2>
-          <p class="sp-period" id="spPeriod"></p>
-          <p class="sp-desc" id="spDesc"></p>
+        <div class="sp-top">
+          <div class="sp-head">
+            <span class="sp-badge" id="spBadge"></span>
+            <h2 id="spTitle"></h2>
+            <p class="sp-desc" id="spDesc"></p>
+            <div class="sp-rounds" id="spRounds"></div>
+          </div>
+          <a class="sp-flyer" id="spFlyer" href="#" target="_blank" rel="noopener" hidden>
+            <img id="spFlyerImg" src="" alt="겨울방학 수영특강 안내 전단지" loading="lazy">
+            <span>🔍 전단지 크게 보기</span>
+          </a>
         </div>
         <div class="sp-soon" id="spSoon" hidden>
           <p class="sp-soon-badge">📢 <b id="spSoonText"></b></p>
           <a class="btn kn-kakao" data-kakao href="#" target="_blank" rel="noopener">💬 카카오톡 채널 추가하고 소식 받기</a>
         </div>
-        <div class="sp-list" id="spList"></div>
+        <ul class="sp-feats" id="spFeats"></ul>
+
+        <div class="sp-price" id="spPrice">
+          <h3>💰 수강료 안내 <small id="spBothNote"></small></h3>
+          <div class="sp-tiers" id="spTiers"></div>
+        </div>
+
+        <div class="sp-apply" id="spApply">
+          <h3>🗓️ 시간 · 수조 선택하고 신청하기</h3>
+          <div class="sp-round-pick" role="radiogroup" aria-label="신청 차수">
+            <span>신청 차수</span>
+            <label><input type="radio" name="spRound" value="1차" checked><span>1차</span></label>
+            <label><input type="radio" name="spRound" value="2차"><span>2차</span></label>
+            <label><input type="radio" name="spRound" value="1·2차 동시"><span>1·2차 동시 <em>2차 10%↓</em></span></label>
+          </div>
+          <div class="sp-list" id="spList"></div>
+        </div>
         <div class="sp-note" id="spNoteBox">
-          <p class="sp-note-head">⚠️ 신청 전 확인해 주세요 <span id="spUpdated"></span></p>
+          <p class="sp-note-head">❗ 꼭 확인해 주세요 <span id="spUpdated"></span></p>
           <ul id="spNote"></ul>
         </div>
       </div>
@@ -663,10 +685,10 @@
     <svg class="modal-seal" aria-hidden="true"><use href="#seal"/></svg>
     <span class="sp-badge" id="spmBadge"></span>
     <h3 id="spmTitle"></h3>
-    <p class="sp-period" id="spmPeriod"></p>
-    <ul class="spm-list" id="spmList"></ul>
+    <ul class="spm-rounds" id="spmRounds"></ul>
+    <div class="spm-deal" id="spmDeal"></div>
     <div class="modal-btns">
-      <a class="btn btn-main" href="#special" data-close>자세히 보기</a>
+      <a class="btn btn-main" href="#special" data-close>자세히 보고 신청하기</a>
       <button class="btn btn-ghost" type="button" id="spmToday">오늘 하루 안 보기</button>
     </div>
   </div>
