@@ -47,6 +47,7 @@
 - GA4 측정 ID `G-4K98CC1P0P` (2026-10-22부터 수집).
   2026-11-13부터 자동 프로그램(검색엔진 봇 · 미리보기 · 헤드리스 브라우저)은 `app.js`의 `IS_BOT`으로 통계(GA4 · Clarity · 네이버)에서 제외. 그 전 기간의 미국 · 영어 방문자는 대부분 봇. Clarity · 네이버 애널리틱스는 ID를 받으면 `data.js`의 `analytics`에 넣으면 켜집니다.
 - GA4 이벤트: `consult_submit`, `call_click`, `kakao_click`, `naver_booking_click`, `instagram_click`, `rental_submit`, `timetable_class_click`, `timetable_tab`, `price_term`, `see_timetable_click`, `map_click` 등
+- 신청서 이탈 기록(2026-11-13~): `form_field`(칸을 처음 채울 때, `field` · `step`), `form_error`(빠진 칸 안내, `reason` · `last_field`), `form_abandon`(접수 없이 나감, `last_field` · `filled`). 칸 이름만 보내고 입력 내용은 절대 안 보냄. GA4 보고서에서 보려면 맞춤 측정기준 `field` · `reason` · `last_field` 등록 필요.
 - 백업: 예전 작업 저장소 `bbarkdo/-`의 `claude/dynamic-wave-swimming-site-uxvfnd` 브랜치 `dynamicwave/` 폴더에 같은 파일을 복사해 두어 왔습니다.
   그 저장소가 이 대화에 연결돼 있을 때만 동기화합니다.
 
@@ -55,7 +56,7 @@
 3. 월 15시 퐁당풀 5세반 신규 친구 나이 확인
 4. 대관 최대 인원 · 추가 요금 여부, 자유수영 가격을 1회 요금 카드로 옮길지
 5. GA4: 주요 이벤트 표시(`consult_submit`, `call_click`, `naver_booking_click`, `kakao_click`), 내부 트래픽 제외, Search Console 링크
-6. 제안해 둔 개선(사장님 승인 시): 신청서 오류 이벤트 기록, 신청서 상단 빠른 전화/카톡 버튼, 수업 사진 추가, 인스타 프로필 링크에 `?utm_source=instagram&utm_medium=bio`
+6. 제안해 둔 개선(사장님 승인 시): 신청서 상단 빠른 전화/카톡 버튼, 수업 사진 추가, 인스타 프로필 링크에 `?utm_source=instagram&utm_medium=bio`
 
 ## 공개 후 첫 성과 (10/22~11/1, GA4)
 방문자 59명 · 평균 1분 38초 · 네이버(검색 · 플레이스 · 톡톡)가 1등 유입, 검색 유입의 참여율 80%.

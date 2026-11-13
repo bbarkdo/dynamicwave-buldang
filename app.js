@@ -753,7 +753,39 @@
   function val(id) { return $(id).value.trim(); }
   function radio(name) { var r = form.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
   function progs() { return [].slice.call((who === 'kids' ? $('progKids') : $('progAdult')).querySelectorAll('input:checked')).map(function (i) { return i.value; }); }
-  function showErr(t) { msg.hidden = false; msg.className = 'form-msg err'; msg.textContent = t; }
+  function showErr(t) { msg.hidden = false; msg.className = 'form-msg err'; msg.textContent = t; track('form_error', { who: who, reason: t.slice(0, 40), last_field: fLast || '없음' }); }
+
+  /* ---------- 신청서 이탈 기록 (GA4) ----------
+     form_field   : 칸을 처음 채울 때 1번씩 (어디까지 썼는지)
+     form_error   : 접수 버튼을 눌렀는데 빠진 칸 안내가 뜬 경우 (reason = 안내 문구)
+     form_abandon : 쓰다가 접수 없이 나간 경우 (last_field = 마지막으로 채운 칸, filled = 채운 칸 수)
+     ※ 입력한 내용(이름 · 번호 등)은 절대 보내지 않고 칸 이름만 보냅니다. */
+  var FIELD_NAME = {
+    'k-name': '아동 이름', 'k-birth': '아동 생년월일', 'k-gender': '아동 성별', 'k-exp': '강습 경험', 'k-level': '현재 진도', 'k-pickup': '픽업 장소',
+    'a-name': '성인 성함', 'a-birth': '성인 생년월일', 'a-gender': '성인 성별', 'a-exp': '성인 강습 경험', 'a-level': '성인 진도',
+    'f-phone': '연락처', 'progK': '희망 프로그램', 'progA': '희망 프로그램', 'wDays': '희망 요일', 'wTime': '희망 시간', 'wFreq': '주 횟수',
+    'months': '개월수', 'shuttle': '셔틀', 'f-memo': '요청 사항', 'f-agree': '개인정보 동의',
+    'r-name': '대관 성함', 'r-phone': '대관 연락처', 'r-date': '대관 날짜', 'r-time': '대관 시간', 'r-people': '대관 인원', 'r-purpose': '대관 목적', 'r-memo': '대관 요청'
+  };
+  var fSeen = {}, fCount = 0, fLast = '', fSent = false, fDone = false;
+  function fieldOf(el) {
+    var key = el.type === 'radio' ? el.name : el.id;
+    if (!key) { var box = el.closest('[id]'); key = box && box !== form ? box.id : ''; }
+    return FIELD_NAME[key] || key || '기타';
+  }
+  form.addEventListener('change', function (e) {
+    var el = e.target; if (!el || !/^(INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) return;
+    if (el.type !== 'checkbox' && el.type !== 'radio' && !String(el.value).trim()) return;
+    var f = fieldOf(el); fLast = f;
+    if (fSeen[f]) return; fSeen[f] = 1; fCount++;
+    track('form_field', { who: who, field: f, step: fCount });
+  });
+  function formAbandon() {
+    if (fSent || fDone || !fCount) return; fSent = true;
+    track('form_abandon', { who: who, last_field: fLast, filled: fCount, transport_type: 'beacon' });
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') formAbandon(); });
+  window.addEventListener('pagehide', formAbandon);
 
   function rentBody() {
     return '[다이나믹웨이브 불당점 대관 문의]\n' +
@@ -816,7 +848,7 @@
     if (!$('f-agree').checked) return showErr('개인정보 수집 · 이용에 동의해 주세요.');
     if (rent && !val('r-date')) return showErr('희망 날짜를 골라주세요.');
     var body = rent ? rentBody() : buildBody(), href = 'sms:' + info.sms + '?&body=' + encodeURIComponent(body);
-    msg.hidden = false; msg.className = 'form-msg';
+    msg.hidden = false; msg.className = 'form-msg'; fDone = true;
     track(rent ? 'rental_submit' : 'consult_submit', { who: who, program: rent ? '대관' : (progs().join(',') || '미선택'), method: IS_MOBILE ? 'sms' : 'qr' });
     if (IS_MOBILE) {
       msg.innerHTML = '<b>문자 앱이 열리지 않으면 아래 내용을 ' + esc(info.tel) + '로 보내주세요.</b><pre id="smsText">' + esc(body) + '</pre>' +
