@@ -44,7 +44,8 @@
 ## 연결된 서비스
 - 도메인: 가비아 `dwave-buldang.kr` (매년 갱신 필요 — 자동 연장 권장)
 - 네이버 서치어드바이저 · 구글 서치 콘솔: 소유확인 태그가 `index.html`에 있음, 사이트맵 제출 완료
-- GA4 측정 ID `G-4K98CC1P0P` (2026-10-22부터 수집). Clarity · 네이버 애널리틱스는 ID를 받으면 `data.js`의 `analytics`에 넣으면 켜집니다.
+- GA4 측정 ID `G-4K98CC1P0P` (2026-10-22부터 수집).
+  2026-11-13부터 자동 프로그램(검색엔진 봇 · 미리보기 · 헤드리스 브라우저)은 `app.js`의 `IS_BOT`으로 통계(GA4 · Clarity · 네이버)에서 제외. 그 전 기간의 미국 · 영어 방문자는 대부분 봇. Clarity · 네이버 애널리틱스는 ID를 받으면 `data.js`의 `analytics`에 넣으면 켜집니다.
 - GA4 이벤트: `consult_submit`, `call_click`, `kakao_click`, `naver_booking_click`, `instagram_click`, `rental_submit`, `timetable_class_click`, `timetable_tab`, `price_term`, `see_timetable_click`, `map_click` 등
 - 백업: 예전 작업 저장소 `bbarkdo/-`의 `claude/dynamic-wave-swimming-site-uxvfnd` 브랜치 `dynamicwave/` 폴더에 같은 파일을 복사해 두어 왔습니다.
   그 저장소가 이 대화에 연결돼 있을 때만 동기화합니다.

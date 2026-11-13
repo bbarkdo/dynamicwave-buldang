@@ -35,6 +35,16 @@
 
   /* ---------- 방문 통계: GA4 · Clarity · 네이버 애널리틱스 (data.js의 analytics에 ID가 있을 때만) ---------- */
   var AN = D.analytics || {};
+  // 자동 프로그램(검색엔진 · 미리보기 · 테스트 브라우저)은 통계에서 제외 — 실제 손님 숫자만 남김
+  var IS_BOT = (function () {
+    try {
+      var ua = navigator.userAgent || '';
+      return navigator.webdriver === true ||
+        /bot|crawl|spider|slurp|headless|lighthouse|pagespeed|gtmetrix|preview|scrape|python|curl|wget|phantom|puppeteer|playwright|selenium|yeti|daumoa|facebookexternalhit|kakaotalk-scrap/i.test(ua) ||
+        !navigator.languages || navigator.languages.length === 0;
+    } catch (e) { return false; }
+  })();
+  if (IS_BOT) AN = {};
   function loadScript(src, onload) { var s = document.createElement('script'); s.async = true; s.src = src; if (onload) s.onload = onload; document.head.appendChild(s); }
   if (AN.ga4) {
     window.dataLayer = window.dataLayer || [];
