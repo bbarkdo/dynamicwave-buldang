@@ -186,17 +186,20 @@
   document.addEventListener('click', function (e) {
     var b = e.target.closest('.cls'); if (!b) return;
     var c = CL[+b.dataset.id];
+    // 이미 담은 수업을 다시 누르면 빼기
+    var had = wishes.findIndex(function (w) { return w.cid === c.id; });
+    if (had >= 0) { wishes.splice(had, 1); renderWish(); toast('↩️ ' + c.day + ' ' + +c.time.slice(0, 2) + '시 ' + D.rooms[c.room].name + ' 수업을 뺐어요'); return; }
     setWho('kids');
     var g = childGroup();
     if (g && c.kind !== '신규' && !classFits(c.kind, g)) {
-      $('consult').scrollIntoView({ behavior: 'smooth' });
+      goForm();
       return showErr(g === 'young' ? '만 48개월 미만은 정규반 신청이 어려워요. 개인 레슨으로 신청하시거나 수영장으로 문의해 주세요.'
         : '이 수업은 ' + c.name + '이에요. 입력한 생년월일 기준으로는 ' + GROUP[g].fit + ' 대상이라 신청할 수 없어요.');
     }
     setProg('kids', c.kind === '5세' ? '5세 특별 정규반' : '키즈정규반');
     addWish({ days: [c.day], time: c.time, freq: 1, label: D.rooms[c.room].name + ' ' + (c.s.k === 'new' ? '신규반 개설 희망' : c.name + (c.level ? '(' + c.level + ')' : '')),
       wait: c.s.k === 'full', isNew: c.s.k === 'new', cid: c.id });
-    $('consult').scrollIntoView({ behavior: 'smooth' });
+    toast('✅ ' + c.day + ' ' + +c.time.slice(0, 2) + '시 ' + D.rooms[c.room].name + ' ' + (c.s.k === 'new' ? '신규반' : c.name) + (c.s.k === 'full' ? ' (대기)' : '') + ' 담았어요', true);
   });
   renderTT();
 
@@ -241,7 +244,7 @@
     var b = BANDS.filter(function (x) { return x.key === btn.dataset.band; })[0];
     setProg(who === 'kids' ? 'kids' : 'adult', '개인');
     addWish({ text: '개인레슨 · ' + b.name + ' (' + pad(b.hours[0]) + '~' + pad(b.hours[b.hours.length - 1]) + '시 시작) 희망' });
-    $('consult').scrollIntoView({ behavior: 'smooth' });
+    goForm();
   });
   renderAdult();
   var SUB = { kids: $('ttSub').innerHTML, adult: '성인 레슨과 키즈 개인 · 듀엣 · 트리오 레슨은 아래 시간대 중 원하는 요일 · 시간에 예약해요. 시간대를 고르면 상담 신청서에 바로 담겨요.' };
@@ -358,7 +361,7 @@
       addWish({ special: true, wait: full, round: round, slot: x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name, deal: deal ? deal.name : '',
         text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') });
       track('special_apply_click', { round: round, time: x.part.name, pool: x.pool.room });
-      showPicked(); goForm();
+      toast('✅ 겨울특강 ' + round + ' · ' + x.part.name + ' ' + D.rooms[x.pool.room].name + (full ? ' (대기)' : '') + ' 담았어요', true);
     });
     // 팝업 (하루 1회)
     var modal = $('spModal');
@@ -437,21 +440,47 @@
   function isSp() { return who === 'kids' && progMode() === 'special'; }
   function goForm() { var t = $('spPicked').hidden ? form : $('spPicked'); setTimeout(function () { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); }
   function showPicked(err) {
-    var box = $('spPicked'), on = isSp() || !!err;
-    $('fWish').hidden = $('fMonths').hidden = isSp();
-    if (who === 'kids') $('fShuttle').hidden = isSp();
-    $('memoNo').textContent = isSp() ? '4' : '7';
-    $('regularTxt').textContent = isSp() ? '수준별 반편성을 위해 알려주세요 (선택)' : '정규반 신청 시 반 배정을 위해 알려주세요';
+    var box = $('spPicked'), sp = isSp();
+    $('fWish').hidden = $('fMonths').hidden = sp;
+    if (who === 'kids') $('fShuttle').hidden = sp;
+    $('memoNo').textContent = sp ? '4' : '7';
+    $('regularTxt').textContent = sp ? '수준별 반편성을 위해 알려주세요 (선택)' : '정규반 신청 시 반 배정을 위해 알려주세요';
+    var picks = [];
+    wishes.forEach(function (w, i) { if (sp ? w.special : w.cid != null) picks.push({ w: w, i: i }); });
+    var on = !!err || (who === 'kids' && (sp || picks.length > 0));
     box.hidden = !on;
     if (!on) return;
-    var list = wishes.map(function (w, i) { return w.special ? '<li><span class="spp-r">' + esc(w.round) + '</span><span class="spp-t">' + esc(w.slot) + (w.deal ? '<small>' + esc(w.deal) + ' 가격</small>' : '') + '</span>' + (w.wait ? '<em class="spp-w">대기 접수</em>' : '<em class="spp-ok">신청</em>') + '<button type="button" class="x" data-i="' + i + '" aria-label="삭제">×</button></li>' : ''; }).join('');
-    box.innerHTML = '<p class="spp-head">❄️ 겨울방학 수영특강 신청서</p>' +
+    var list = picks.map(function (x) {
+      var w = x.w, tag = w.special ? esc(w.round) : esc(w.days.join('/') + ' ' + +w.time.slice(0, 2) + '시');
+      var name = w.special ? esc(w.slot) + (w.deal ? '<small>' + esc(w.deal) + ' 가격</small>' : '') : esc(w.label);
+      var st = w.wait ? '<em class="spp-w">대기 접수</em>' : w.isNew ? '<em class="spp-n">신규반 희망</em>' : '<em class="spp-ok">신청</em>';
+      return '<li><span class="spp-r">' + tag + '</span><span class="spp-t">' + name + '</span>' + st + '<button type="button" class="x" data-i="' + x.i + '" aria-label="삭제">×</button></li>';
+    }).join('');
+    var back = sp ? '#special' : '#timetable';
+    box.innerHTML = '<p class="spp-head">' + (sp ? '❄️ 겨울방학 수영특강 신청서' : '🧺 시간표에서 고른 수업') + '</p>' +
       (err ? '<p class="spp-err">' + esc(err) + '</p>'
-        : list ? '<ul class="spp-list">' + list + '</ul><p class="spp-next">✍️ 이제 아래 <b>아이 이름 · 생년월일 · 성별 · 연락처</b>만 적고 보내주세요.</p>'
+        : list ? '<ul class="spp-list">' + list + '</ul><p class="spp-next">✍️ 이제 아래 <b>아이 이름 · 생년월일 · 성별 · 연락처</b>만 적고 보내주세요.' + (sp ? '' : ' 주 횟수는 4번에서 바꿀 수 있어요.') + '</p>'
         : '<p class="spp-next">위 겨울특강 표에서 <b>차수 · 시간 · 수조</b>를 골라주세요.</p>') +
-      '<a class="link-btn" href="#special">' + (list ? '＋ 다른 시간 더 고르기' : '📅 겨울특강 시간표 보러 가기') + '</a>';
+      '<a class="link-btn" href="' + back + '">' + (list ? '＋ 다른 시간 더 고르기' : '📅 시간표 보러 가기') + '</a>';
     box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
   }
+  // 담기 알림 + 아래쪽 '담은 수업' 바 (신청서가 보이면 숨김)
+  var toastT;
+  function toast(t, withGo) {
+    var el = $('toast'); el.innerHTML = '<span>' + esc(t) + '</span>' + (withGo ? '<small>더 고르거나 아래 버튼으로 신청서를 써 주세요</small>' : '');
+    el.hidden = false; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+    clearTimeout(toastT); toastT = setTimeout(function () { el.classList.remove('on'); }, 2600);
+  }
+  var formSeen = false;
+  function cartUpdate() {
+    var n = wishes.length, dm = document.querySelector('.dock-main');
+    dm.innerHTML = n ? '🧺 ' + n + '개 담음 · 신청서' : '✉️ 대기 접수';
+    dm.classList.toggle('has', n > 0);
+    $('cartBar').hidden = !n || formSeen;
+    $('cartN').textContent = n;
+  }
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { formSeen = es[0].isIntersecting; cartUpdate(); }, { threshold: .15 }).observe(form);
+  [$('cartGo'), document.querySelector('.dock-main')].forEach(function (b) { b.addEventListener('click', function (e) { if (!wishes.length) return; e.preventDefault(); showPicked(); goForm(); }); });
   $('spPicked').addEventListener('click', function (e) { var b = e.target.closest('.x'); if (b) { wishes.splice(+b.dataset.i, 1); renderWish(); } });
   $('progKids').addEventListener('change', function () { $('regularBox').hidden = !wantsRegular(); onProgChange(); });
   $('progAdult').addEventListener('change', onProgChange);
@@ -699,7 +728,7 @@
         [1, 2, 3, 4, 5].map(function (n) { return '<option value="' + n + '"' + (n === w.freq ? ' selected' : '') + '>주 ' + n + '회</option>'; }).join('') + '</select>';
       return '<li><span class="wl">' + (i + 1) + '순위 · ' + esc(wishText(w)) + (w.wait ? ' <small>(대기)</small>' : w.isNew ? ' <small>(신규반)</small>' : '') + '</span>' + freq + '<button type="button" class="x" data-i="' + i + '" aria-label="삭제">×</button></li>';
     }).join('');
-    markPicked(); showPicked();
+    markPicked(); showPicked(); cartUpdate();
   }
   function markPicked() {
     var ids = wishes.map(function (w) { return w.cid; });
