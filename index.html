@@ -536,6 +536,8 @@
           </div>
 
           <div id="lessonFields">
+          <!-- 겨울특강에서 시간을 골라 넘어오면: 무엇이 담겼는지 맨 위에 크게 보여줌 -->
+          <div class="sp-picked" id="spPicked" hidden aria-live="polite"></div>
           <!-- 1. 이름 -->
           <div class="row2 only-kids">
             <div class="field"><label for="k-name"><b>1</b>아동 이름</label><input id="k-name" autocomplete="off" placeholder="홍길동"></div>
@@ -567,6 +569,7 @@
           <fieldset class="field">
             <legend><b>3</b>희망 프로그램 <small>(하나만 선택)</small></legend>
             <div class="checks" id="progKids">
+              <label class="prog-sp" id="progSpLbl" hidden><input type="radio" name="progK" value="겨울방학 특강" data-mode="special"><span>❄️ 겨울방학 특강</span></label>
               <label><input type="radio" name="progK" value="키즈정규반" data-regular data-mode="regular"><span>키즈 정규반 (최대 4명)</span></label>
               <label><input type="radio" name="progK" value="5세 특별 정규반" data-regular data-mode="regular"><span>5세 특별반 (최대 3명)</span></label>
               <label><input type="radio" name="progK" value="개인" data-mode="private"><span>개인 1:1</span></label>
@@ -583,7 +586,7 @@
 
           <!-- 정규반 추가 항목 -->
           <div class="regular-box only-kids" id="regularBox" hidden>
-            <p>정규반 신청 시 반 배정을 위해 알려주세요</p>
+            <p id="regularTxt">정규반 신청 시 반 배정을 위해 알려주세요</p>
             <div class="row2">
               <div class="field"><span class="lbl">수영 강습 경험</span>
                 <div class="radio-row"><label><input type="radio" name="k-exp" value="있음"><span>있음</span></label><label><input type="radio" name="k-exp" value="없음"><span>처음이에요</span></label></div>
@@ -593,7 +596,7 @@
           </div>
 
           <!-- 4. 희망 요일·시간 -->
-          <div class="field">
+          <div class="field" id="fWish">
             <div class="lbl-row"><span class="lbl"><b>4</b>희망 요일 · 시간 · 주 횟수 <small>(여러 개 추가 가능)</small></span><button type="button" class="link-btn" data-see>📅 시간표 보기</button></div>
             <div class="wish-builder">
               <div class="day-checks" id="wDays">
@@ -608,13 +611,13 @@
           </div>
 
           <!-- 5. 선호 개월수 -->
-          <div class="field">
+          <div class="field" id="fMonths">
             <span class="lbl"><b>5</b>선호 개월수</span>
             <div class="radio-row"><label><input type="radio" name="months" value="1개월"><span>1개월</span></label><label><input type="radio" name="months" value="3개월"><span>3개월 (10% 할인)</span></label><label><input type="radio" name="months" value="상담 후 결정" checked><span>상담 후 결정</span></label></div>
           </div>
 
           <!-- 6. 셔틀 (유아) / 강습 여부·진도 (성인) -->
-          <div class="field only-kids">
+          <div class="field only-kids" id="fShuttle">
             <span class="lbl"><b>6</b>셔틀 이용 <small>(정규반 전용 · 불당동 내 · 월 10,000원)</small></span>
             <div class="radio-row"><label><input type="radio" name="shuttle" value="이용" id="shY"><span>이용</span></label><label><input type="radio" name="shuttle" value="미이용" checked><span>미이용</span></label></div>
             <input id="k-pickup" placeholder="픽업 장소 (예: ○○아파트 정문, ○○초 후문)" hidden>
@@ -626,7 +629,7 @@
           </div>
 
           <!-- 7. 기타 -->
-          <div class="field"><label for="f-memo"><b>7</b>기타 요청 사항 <small>(선택)</small></label><textarea id="f-memo" placeholder="예: 형제 2명 같은 시간 희망 / 물을 많이 무서워해요 / 방문 상담 희망"></textarea></div>
+          <div class="field"><label for="f-memo"><b id="memoNo">7</b>기타 요청 사항 <small>(선택)</small></label><textarea id="f-memo" placeholder="예: 형제 2명 같은 시간 희망 / 물을 많이 무서워해요 / 방문 상담 희망"></textarea></div>
           </div>
 
           <label class="agree" id="agreeRow"><input type="checkbox" id="f-agree">상담 연락을 위해 입력한 정보를 수집 · 이용하는 데 동의합니다. (상담 완료 후 파기 · <a href="privacy.html" target="_blank" rel="noopener">자세히</a>)</label>

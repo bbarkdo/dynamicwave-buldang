@@ -286,7 +286,7 @@
       return t.name + ' 회당 ' + won(t.per) + '원 · ' + (daysTo(t.from) === 1 ? '내일' : md(t.from)) + '부터';
     }
 
-    $('special').hidden = false; $('navSp').hidden = false; $('spRibbon').hidden = false;
+    $('special').hidden = false; $('navSp').hidden = false; $('spRibbon').hidden = false; $('progSpLbl').hidden = false;
     $('spRibbonTag').textContent = '❄️ ' + sp.badge;
     $('spRibbonTxt').textContent = dealLine(deal);
     $('spBadge').textContent = $('spmBadge').textContent = '❄️ ' + sp.badge;
@@ -352,12 +352,13 @@
     $('spList').addEventListener('click', function (e) {
       var b = e.target.closest('[data-sp]'); if (!b) return;
       var x = spSlots[+b.dataset.sp], round = spRound(), full = poolSeat(x.pool, round).k === 'full';
-      setWho('kids');
       var a = childAge();
-      if (a && !spFits(a)) { $('wHint').textContent = '겨울방학 특강은 초등학생 전용이에요. (7세는 신청 가능)'; $('consult').scrollIntoView({ behavior: 'smooth' }); return; }
-      addWish({ special: true, text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') + (full ? ' (대기)' : '') });
+      if (a && !spFits(a)) { setWho('kids'); showPicked('겨울방학 특강은 초등학생 전용이에요. (7세는 신청할 수 있어요) 입력한 생년월일을 확인해 주세요.'); goForm(); return; }
+      setProg('kids', '겨울방학 특강'); autoProg = false;
+      addWish({ special: true, wait: full, round: round, slot: x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name, deal: deal ? deal.name : '',
+        text: sp.badge + ' ' + round + ' · ' + x.part.name + '(' + x.part.time + ') ' + D.rooms[x.pool.room].name + (deal ? ' · ' + deal.name + ' 가격' : '') });
       track('special_apply_click', { round: round, time: x.part.name, pool: x.pool.room });
-      $('consult').scrollIntoView({ behavior: 'smooth' });
+      showPicked(); goForm();
     });
     // 팝업 (하루 1회)
     var modal = $('spModal');
@@ -431,7 +432,27 @@
     onProgChange();
   }
   form.querySelector('.form-tabs').addEventListener('click', function (e) { var b = e.target.closest('button'); if (b) setWho(b.dataset.who); });
-  function wantsRegular() { return !!$('progKids').querySelector('input[data-regular]:checked'); }
+  function wantsRegular() { return !!$('progKids').querySelector('input[data-regular]:checked, input[data-mode="special"]:checked'); }
+  // 겨울특강 모드: 특강 표에서 고른 시간을 신청서 맨 위에 보여주고, 필요 없는 항목(요일·시간 고르기 · 개월수 · 셔틀)은 숨김
+  function isSp() { return who === 'kids' && progMode() === 'special'; }
+  function goForm() { var t = $('spPicked').hidden ? form : $('spPicked'); setTimeout(function () { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 30); }
+  function showPicked(err) {
+    var box = $('spPicked'), on = isSp() || !!err;
+    $('fWish').hidden = $('fMonths').hidden = isSp();
+    if (who === 'kids') $('fShuttle').hidden = isSp();
+    $('memoNo').textContent = isSp() ? '4' : '7';
+    $('regularTxt').textContent = isSp() ? '수준별 반편성을 위해 알려주세요 (선택)' : '정규반 신청 시 반 배정을 위해 알려주세요';
+    box.hidden = !on;
+    if (!on) return;
+    var list = wishes.map(function (w, i) { return w.special ? '<li><span class="spp-r">' + esc(w.round) + '</span><span class="spp-t">' + esc(w.slot) + (w.deal ? '<small>' + esc(w.deal) + ' 가격</small>' : '') + '</span>' + (w.wait ? '<em class="spp-w">대기 접수</em>' : '<em class="spp-ok">신청</em>') + '<button type="button" class="x" data-i="' + i + '" aria-label="삭제">×</button></li>' : ''; }).join('');
+    box.innerHTML = '<p class="spp-head">❄️ 겨울방학 수영특강 신청서</p>' +
+      (err ? '<p class="spp-err">' + esc(err) + '</p>'
+        : list ? '<ul class="spp-list">' + list + '</ul><p class="spp-next">✍️ 이제 아래 <b>아이 이름 · 생년월일 · 성별 · 연락처</b>만 적고 보내주세요.</p>'
+        : '<p class="spp-next">위 겨울특강 표에서 <b>차수 · 시간 · 수조</b>를 골라주세요.</p>') +
+      '<a class="link-btn" href="#special">' + (list ? '＋ 다른 시간 더 고르기' : '📅 겨울특강 시간표 보러 가기') + '</a>';
+    box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop');
+  }
+  $('spPicked').addEventListener('click', function (e) { var b = e.target.closest('.x'); if (b) { wishes.splice(+b.dataset.i, 1); renderWish(); } });
   $('progKids').addEventListener('change', function () { $('regularBox').hidden = !wantsRegular(); onProgChange(); });
   $('progAdult').addEventListener('change', onProgChange);
   function setProg(w, value) {
@@ -464,6 +485,7 @@
   var HINT = {
     regular: '정규반(5세 특별반 · 키즈 정규반)은 평일 14~18시, 토요일 09~13시에 시작해요.',
     private: '개인 · 듀엣 · 트리오는 평일 06~13시 · 19~21시, 토요일 09~13시에 시작해요. (토요일 그 외 시간은 강사와 협의)',
+    special: '겨울방학 특강 시간은 위 겨울특강 표에서 골라요.',
     any: '희망 프로그램을 먼저 고르면 그 프로그램이 가능한 시간만 보여드려요.'
   };
   function selectedDays() { return [].slice.call($('wDays').querySelectorAll('input:checked')).map(function (i) { return i.value; }); }
@@ -551,6 +573,8 @@
       r.disabled = off; r.parentNode.classList.toggle('off', off);
       r.parentNode.title = off ? PROG_NOTE[g] : '';
     });
+    var spR = $('progKids').querySelector('input[data-mode="special"]'), spOff = !!g && !spFits(a);
+    spR.disabled = spOff; spR.parentNode.classList.toggle('off', spOff); spR.parentNode.title = spOff ? '겨울방학 특강은 초등학생 전용이에요 (7세 가능)' : '';
     // 잠긴 버튼이 선택돼 있었다면 맞는 프로그램으로 옮김
     var cur = $('progKids').querySelector('input:checked');
     var fit = g === 'five' ? '5세 특별 정규반' : (g === 'baby' || g === 'elem') ? '키즈정규반' : '개인';
@@ -648,11 +672,13 @@
   function onProgChange() {
     var mode = progMode(), before = wishes.length;
     wishes = wishes.filter(function (w) {
+      if (mode === 'special') return !!w.special;
+      if (w.special) return false;
       if (w.text || w.time === '시간 무관') return true;
       var h = +w.time.slice(0, 2);
       return w.days.every(function (d) { return hoursFor(mode, d).indexOf(h) >= 0; });
     });
-    renderTimeOpts();
+    renderTimeOpts(); showPicked();
     if (wishes.length !== before) { renderWish(); $('wHint').textContent = '선택한 프로그램과 맞지 않는 희망 시간 ' + (before - wishes.length) + '개를 지웠어요. ' + HINT[mode]; }
   }
   $('wDays').addEventListener('change', renderTimeOpts);
@@ -673,7 +699,7 @@
         [1, 2, 3, 4, 5].map(function (n) { return '<option value="' + n + '"' + (n === w.freq ? ' selected' : '') + '>주 ' + n + '회</option>'; }).join('') + '</select>';
       return '<li><span class="wl">' + (i + 1) + '순위 · ' + esc(wishText(w)) + (w.wait ? ' <small>(대기)</small>' : w.isNew ? ' <small>(신규반)</small>' : '') + '</span>' + freq + '<button type="button" class="x" data-i="' + i + '" aria-label="삭제">×</button></li>';
     }).join('');
-    markPicked();
+    markPicked(); showPicked();
   }
   function markPicked() {
     var ids = wishes.map(function (w) { return w.cid; });
@@ -712,6 +738,15 @@
     var p = progs().join(', ') || '상담 후 결정';
     var w = wishes.length ? wishes.map(function (x) { return '\n - ' + wishText(x) + (x.text ? '' : ' 주 ' + x.freq + '회') + (x.wait ? ' (대기 접수)' : x.isNew ? ' (현재 수업 없음 · ' + D.newMin + '인 이상 시 개설)' : ''); }).join('') : ' 상담 후 결정';
     var memo = val('f-memo') || '없음';
+    if (isSp()) {
+      var sw = wishes.filter(function (x) { return x.special; }).map(function (x) { return '\n - ' + x.round + ' · ' + x.slot + (x.deal ? ' · ' + x.deal + ' 가격' : '') + (x.wait ? ' (대기 접수)' : ''); }).join('');
+      return '[다이나믹웨이브 불당점 겨울방학 수영특강 신청]\n' +
+        '1. 아동명 / 생년월일 / 성별 : ' + val('k-name') + ' / ' + (val('k-birth') ? val('k-birth').replace(/-/g, '.') + ' (' + ageText(childAge()) + ')' : '-') + ' / ' + (radio('k-gender') || '-') + '\n' +
+        '2. 보호자 연락처 : ' + val('f-phone') + '\n' +
+        '3. 신청 특강 :' + (sw || ' 상담 후 결정') + '\n' +
+        '4. 기타 요청 사항 : ' + memo +
+        '\n※ 수영 강습 경험 : ' + (radio('k-exp') || '-') + ' / 현재 진도 : ' + (val('k-level') || '-');
+    }
     if (who === 'kids') {
       var shuttle = radio('shuttle') === '이용' ? '이용 (픽업 장소: ' + (val('k-pickup') || '상담 시 안내') + ')' : '미이용';
       var b = '[다이나믹웨이브 불당점 대기접수 · 유아/어린이]\n' +
@@ -747,6 +782,7 @@
     if (rent && !name) return showErr('신청자 성함을 입력해 주세요.');
     if (!name) return showErr(who === 'kids' ? '아동 이름을 입력해 주세요.' : '성함을 입력해 주세요.');
     if (who === 'kids' && !radio('k-gender')) return showErr('아이 성별을 선택해 주세요.');
+    if (isSp() && !wishes.some(function (w) { return w.special; })) { showPicked(); goForm(); return showErr('겨울특강 표에서 신청할 차수 · 시간을 골라주세요.'); }
     if (!/^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(phone)) return showErr('연락처를 확인해 주세요. 예: 010-1234-5678');
     if (!$('f-agree').checked) return showErr('개인정보 수집 · 이용에 동의해 주세요.');
     if (rent && !val('r-date')) return showErr('희망 날짜를 골라주세요.');

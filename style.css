@@ -752,3 +752,23 @@ a.extra:hover { transform: translateY(-2px); }
 .sp-item.is-none { background: rgba(255,255,255,.55); box-shadow: none; border-top-style: dashed; justify-content: center; }
 .sp-item.is-none .sp-pool { opacity: .5; }
 @media (max-width: 640px) { .sp-flyers { grid-template-columns: 1fr; gap: 12px; } .rs { font-size: 12.5px; } }
+/* 신청서: 겨울특강에서 넘어왔을 때 담긴 내용 */
+#consultForm, .sp-picked { scroll-margin-top: 90px; }
+.checks .prog-sp span { border-color: #9ED8F5; background: linear-gradient(135deg, #E8F7FF, #FFF0F5); }
+.checks .prog-sp input:checked + span { border-color: var(--coral); color: #D23A47; background: #FFF1F3; }
+.sp-picked { background: linear-gradient(135deg, #E8F7FF, #FFF0F5); border: 2px solid #9ED8F5; border-radius: 18px; padding: 14px 16px; margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
+.sp-picked.pop { animation: spPop .7s ease; }
+@keyframes spPop { 0% { transform: scale(.97); box-shadow: 0 0 0 0 rgba(255,122,133,.6); } 50% { transform: scale(1.01); box-shadow: 0 0 0 8px rgba(255,122,133,.18); } 100% { transform: none; box-shadow: none; } }
+@media (prefers-reduced-motion: reduce) { .sp-picked.pop { animation: none; } }
+.spp-head { margin: 0; font-family: var(--head); font-size: 20px; color: var(--sky-d); }
+.spp-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.spp-list li { display: flex; align-items: center; gap: 8px; background: #fff; border-radius: 12px; padding: 8px 10px; }
+.spp-r { flex: none; background: #1D3557; color: #fff; font-size: 12.5px; font-weight: 700; border-radius: 999px; padding: 2px 9px; }
+.spp-t { flex: 1; min-width: 0; font-weight: 700; font-size: 14.5px; }
+.spp-t small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.spp-list em { flex: none; font-style: normal; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 8px; }
+.spp-ok { background: #E3F7EC; color: #178A52; } .spp-w { background: #FFE4E6; color: #D23A47; }
+.spp-list .x { flex: none; border: 0; background: #F2F4F7; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; color: var(--muted); }
+.spp-next, .spp-err { margin: 0; font-size: 14px; }
+.spp-err { color: #D23A47; font-weight: 700; }
+.sp-picked .link-btn { align-self: flex-start; }
