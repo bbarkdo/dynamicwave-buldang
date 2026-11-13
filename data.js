@@ -145,7 +145,7 @@ window.DW = {
       { src: 'assets/winter-2027-main.jpg', alt: '겨울방학 수영특강 안내' },
       { src: 'assets/winter-2027-price.jpg', alt: '겨울방학 수영특강 수강료 안내' }
     ],
-    updated: '2026-11-08',
+    updated: '2026-11-13',
     rounds: [
       { name: '1차 특강', dates: '1월 7일(목) ~ 1월 29일(금)', count: 17, days: '월~금' },
       { name: '2차 특강', dates: '2월 1일(월) ~ 2월 26일(금)', count: 18, days: '월~금', note: '2월 8일(월) ~ 9일(화) 설 연휴 휴강' }
@@ -170,9 +170,9 @@ window.DW = {
     //  (1 · 2차 모두 신청한 아이는 r1, r2 둘 다에 셉니다)  note = 짧은 안내(선택)
     target: '초등학생 (7세 가능)',
     parts: [
-      { name: '9시',  time: '09:00 ~ 09:50', pools: [ { room: 1, cap: 4, r1: 3, r2: 2, note: '여아 신청 중' }, { room: 2, cap: 4, r1: 0, r2: 0 } ] },
+      { name: '9시',  time: '09:00 ~ 09:50', pools: [ { room: 1, cap: 4, r1: 4, r2: 2 }, { room: 2, cap: 4, r1: 0, r2: 0 } ] },
       { name: '10시', time: '10:00 ~ 10:50', pools: [ { room: 1, cap: 4, r1: 0, r2: 0 }, { room: 2, cap: 4, r1: 0, r2: 0 } ] },
-      { name: '11시', time: '11:00 ~ 11:50', pools: [ { room: 1, cap: 4, r1: 0, r2: 0 }, { room: 2, cap: 4, r1: 0, r2: 0 } ] },
+      { name: '11시', time: '11:00 ~ 11:50', pools: [ { room: 1, cap: 4, r1: 2, r2: 2 }, { room: 2, cap: 4, r1: 0, r2: 0 } ] },
       { name: '12시', time: '12:00 ~ 12:50', pools: [ { room: 2, cap: 4, r1: 0, r2: 0 } ] }   // 12시는 첨벙풀만
     ],
     note: [                        // 꼭 확인해주세요 — 한 줄에 하나씩
